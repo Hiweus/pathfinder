@@ -94,9 +94,10 @@ async function search(start, target) {
             while(cursor) {
                 path.push(cursor.value)
                 cursor = cursor.parentNode
+                await new Promise(res => setTimeout(res, 10))
+                generateMaze()
             }
 
-            generateMaze()
             return
         }
 
