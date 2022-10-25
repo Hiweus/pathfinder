@@ -79,11 +79,11 @@ function getNeighborhoods(value) {
 
 
 const visited = new Set()
-function bfs(start, target) {
+function dfs(start, target) {
     const queue = [start]
 
     while(queue.length > 0) {
-        const current = queue.shift()
+        const current = queue.pop()
         const neighbors = nodes.get(current)
         console.log(`Searching in ${current}`)
         for(const i of neighbors) {
@@ -105,7 +105,7 @@ function bfs(start, target) {
 
 console.log(nodes)
 
-const path = bfs('0-0', '19-19')
+const path = dfs('0-0', '19-19')
 if(!path) {
     console.error('not found')
 }
