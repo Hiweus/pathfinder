@@ -22,16 +22,26 @@ const walls = [
     '16-7',
     '17-7',
     '18-7',
-    '19-7',
 
     '7-8',
     '7-9',
     '8-9',
     '9-9',
     '10-9',
+    '12-9',
     '10-10',
     '10-11',
     '10-12',
+
+    '14-8',
+    '14-9',
+    '14-10',
+    '13-10',
+    '12-10',
+
+    '12-11',
+    '12-12',
+    '11-12',
 ]
 
 const nodes = new Map()
@@ -43,7 +53,11 @@ for(let i=0;i<ROWS;i++) {
     for(let j=0;j<COLS;j++) {
         const value = `${i}-${j}`
         row.push(value)
-        nodes.set(value, getNeighborhoods(value))
+        nodes.set(value, {
+            neighbors: getNeighborhoods(value),
+            fScore: -1,
+            gScore: -1,
+        })
     }
 
     matrix.push(row)
@@ -78,37 +92,104 @@ function getNeighborhoods(value) {
 }
 
 
+function minimalFScore(list) {
+    let key = null
+    for(const i of list) {
+        if(key === null) key = i
+
+        const minimal = nodes.get(key)
+        const current = nodes.get(i)
+
+        if(minimal.fScore > current.fScore) {
+            key = i
+        }
+    }
+
+    return key
+}
+
 const visited = new Set()
-function dfs(start, target) {
-    const queue = [start]
+function search(start, target) {
+    let list = [start]
 
-    while(queue.length > 0) {
-        const current = queue.pop()
-        const neighbors = nodes.get(current)
-        console.log(`Searching in ${current}`)
-        for(const i of neighbors) {
-            if(!visited.has(i)) {
-                visited.add(i)
-                queue.push(i)
-            }
+    nodes.get(start).gScore = 0
+    nodes.get(start).fScore = distance(start, target)
 
-            if(i === target) {
-                console.log('found')
-                return visited
-            }
 
+    while (list.length > 0) {
+        const keyMinimalFScore = minimalFScore(list)
+        list = list.filter(i => i !== keyMinimalFScore)
+        const current = nodes.get(keyMinimalFScore)
+
+        visited.add(keyMinimalFScore)
+        if(keyMinimalFScore === target) {
+            console.log("found")
+            return
         }
 
+
+        for(const neighborKey of current.neighbors) {
+            // 1 is a constant for distance between all neighbors
+            // in a complex system like maps should be calculated distance between current node and neighbor node
+            const newGScore = current.gScore + 1
+            const neighborNode = nodes.get(neighborKey)
+            if(neighborNode.gScore === -1 || neighborNode.gScore > newGScore) {
+                neighborNode.gScore = newGScore
+                neighborNode.fScore = newGScore + distance(neighborKey, target)
+                
+                const existsInList = list.indexOf(neighborKey) !== -1
+                if(!existsInList) {
+                    list.push(neighborKey)
+                }
+            }
+        }
+
+
+
     }
+}
+// function dfs(start, target) {
+//     const queue = [start]
+
+//     while(queue.length > 0) {
+//         const current = queue.pop()
+//         const neighbors = nodes.get(current)
+//         console.log(`Searching in ${current}`)
+//         for(const i of neighbors) {
+//             if(!visited.has(i)) {
+//                 visited.add(i)
+//                 queue.push(i)
+//             }
+
+//             if(i === target) {
+//                 console.log('found')
+//                 return visited
+//             }
+
+//         }
+
+//     }
+// }
+
+function distance(start, end) {
+    const origin = start.split('-').map(Number)
+    const target = end.split('-').map(Number)
+
+    const distanceX = Math.abs(origin[1] - target[1])
+    const distanceY = Math.abs(origin[0] - target[0])
+
+    const distance = Math.sqrt(distanceX * distanceX + distanceY * distanceY)
+
+    return distance
 }
 
 
 console.log(nodes)
 
-const path = dfs('0-0', '19-19')
-if(!path) {
-    console.error('not found')
-}
+const path = search('0-0', '19-19')
+// if(!path) {
+//     console.error('not found')
+// }
 
 
 function generateMaze() {
