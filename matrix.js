@@ -121,7 +121,7 @@ async function search(start, target) {
         }
 
         generateMaze()
-        await new Promise(res => setTimeout(res, 1))
+        await new Promise(res => setTimeout(res, 10))
     }
 }
 // function dfs(start, target) {
