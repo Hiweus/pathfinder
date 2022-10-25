@@ -114,7 +114,8 @@ async function search(start, target) {
                 neighborNode.parentNode = current
                 
                 const existsInList = list.indexOf(neighborKey) !== -1
-                if(!existsInList) {
+                const alreadyVisited = visited.has(neighborKey)
+                if(!existsInList && !alreadyVisited) {
                     list.push(neighborKey)
                 }
             }
